@@ -1,6 +1,4 @@
-
-import 'package:stringmatcher/src/stringmatcher_base.dart';
-
+/// Interface for general algorithms for fuzzy string comparison.
 abstract class Algorithm {
-  double getRatio(dynamic first, dynamic second, Term term);
+  double getRatio(List<String> first, List<String> second);
 }

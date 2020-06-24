@@ -1,38 +1,12 @@
-import 'dart:math';
-
 import 'package:stringmatcher/src/algorithm.dart';
-
-import '../stringmatcher_base.dart';
+import 'dart:math';
 
 class Levenshtein implements Algorithm {
 
-//  final _supportsTypes = <Type>[
-//    String,
-//    List<String>
-//  ];
-
+  /// This ratio transform to percent and distance.
   @override
-  double getRatio(dynamic first, dynamic second, Term term) {
-//    if(first.) {
-//
-//    }
-    print(first.runtimeType);
-//    List<dynamic> s1, s2;
+  double getRatio(List<String> first, List<String> second) {
 
-//    switch(term) {
-//      case Term.char:
-//        s1 = first;
-//        s2 = second
-//        break;
-//      case Term.word:
-//        s1 = first.
-//        break;
-//    }
-
-    return _getRatioChar(first, second);
-  }
-
-  double _getRatioChar(List<dynamic> first, List<dynamic> second) {
     if (first == null) {
       throw ArgumentError('First string is null');
     }
@@ -73,8 +47,8 @@ class Levenshtein implements Algorithm {
           cost = 0;
         }
         v1[j + 1] = min(v1[j] + 1, min(
-                    v0[j + 1] + 1,  /// Cost of remove
-                    v0[j] + cost)); /// Cost of substitution
+            v0[j + 1] + 1,  // Cost of remove
+            v0[j] + cost)); // Cost of substitution
 
         minv1 = min(minv1, v1[j + 1]);
       }
@@ -91,5 +65,4 @@ class Levenshtein implements Algorithm {
 
     return 1.0 - v0.last / maxLength;
   }
-
 }
