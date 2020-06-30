@@ -9,5 +9,5 @@ class StringMatcherValue {
 
   double get percent => _ratio * 100.0;
 
-  StringMatcherValue(this._ratio, this._maxLength);
+  StringMatcherValue(double ratio, int maxLength) : _ratio = ratio, _maxLength = maxLength;
 }

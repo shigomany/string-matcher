@@ -1,6 +1,8 @@
 import 'package:stringmatcher/src/algorithm.dart';
 import 'dart:math';
 
+
+/// Levenshtein distance is a string metric for measuring the difference between two sequences
 class Levenshtein implements Algorithm {
 
   /// This ratio transform to percent and distance.

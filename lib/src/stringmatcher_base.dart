@@ -2,10 +2,14 @@ import 'package:stringmatcher/src/algorithm.dart';
 import 'package:meta/meta.dart';
 import 'stringmatcher_value.dart';
 import 'package:stringmatcher/src/extends.dart';
+
 import 'dart:core';
+import 'dart:collection';
 import 'dart:math';
 import 'package:tuple/tuple.dart';
 
+typedef MatchComparer = int Function(StringMatcherValue a, StringMatcherValue b);
+typedef ValueSelector = num Function(StringMatcherValue value);
 
 enum Term {
   char,
@@ -21,7 +25,7 @@ class StringMatcher {
   final _supportsTypes = <Type, Function>{
     String: _stringTypeParser,
     <String>[].runtimeType: () => _listStringTypeParser,
-    <List<String>>[].runtimeType: () => throw UnimplementedError()
+//    <List<String>>[].runtimeType: () => throw UnimplementedError()
   };
 
   final int ngramValue;
@@ -72,9 +76,74 @@ class StringMatcher {
     }
   }
 
+  /// Find best match elements in [secondValues] and sort by [comparer].
+  /// Returns the number of elements equal to [limit]
   // ignore: missing_return
-  StringMatcherValue partialSimilar(String first, String second) {
-    throw UnimplementedError();
+  List<Tuple2<dynamic, dynamic>> partialSimilar(
+      dynamic first,
+      Iterable<dynamic> secondValues,
+      MatchComparer comparer,
+      {int limit = 5, ValueSelector selector}) {
+
+    StringMatcherValue maxValue;
+    var result = ListQueue<Tuple2<dynamic, StringMatcherValue>>();
+
+    for(var el in secondValues) {
+      var strings = _parseByTerm(first, el, term, separators, ngramValue);
+      var ratio = algorithm.getRatio(strings.item1, strings.item2);
+      var maxLength = max(strings.item1.length, strings.item2.length);
+      var currentMatcher = StringMatcherValue(ratio, maxLength);
+      if (maxValue == null) {
+        maxValue = StringMatcherValue(ratio, maxLength);
+        result.add(Tuple2(el, maxValue));
+        continue;
+      }
+      if (comparer(currentMatcher, maxValue) == 1) {
+        maxValue = currentMatcher;
+        result.addFirst(Tuple2(el, currentMatcher));
+      }
+      else if (comparer(currentMatcher, maxValue) < 1) {
+        result.addLast(Tuple2(el, currentMatcher));
+      }
+    }
+
+    if (selector != null) {
+      return result.take(limit).map((e) => Tuple2(e.item1, selector(e.item2))).toList();
+    }
+
+    return result.take(limit).toList();
+  }
+
+
+  Tuple2<dynamic, dynamic> partialSimilarOne(
+      dynamic first,
+      Iterable<dynamic> secondValues,
+      MatchComparer comparer,
+      {ValueSelector selector}) {
+    dynamic string;
+    StringMatcherValue maxValue;
+
+    for(var el in secondValues) {
+      var strings = _parseByTerm(first, el, term, separators, ngramValue);
+      var ratio = algorithm.getRatio(strings.item1, strings.item2);
+      var maxLength = max(strings.item1.length, strings.item2.length);
+      var currentMatcher = StringMatcherValue(ratio, maxLength);
+      if (maxValue == null) {
+        maxValue = StringMatcherValue(ratio, maxLength);
+        string = el;
+        continue;
+      }
+      if (comparer(currentMatcher, maxValue) == 1) {
+        maxValue = currentMatcher;
+        string = el;
+      }
+    }
+
+    if (selector != null) {
+      return Tuple2(string, selector(maxValue));
+    }
+
+    return Tuple2(string, maxValue);
   }
 
   /// Type parsing for Iterable<String>
