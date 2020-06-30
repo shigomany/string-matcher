@@ -112,6 +112,6 @@ When calling functions of the similar type, you can pass certain data types as 2
 StringMatcher supports the following types:
 
 - String
-- List<String>
-- ~~List<List<String>>~~ (Not implemented)
+- List\<String\>
+- ~~List<List\<String\>>~~ (Not implemented)
 
